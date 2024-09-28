@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz : Coûts et Budgets</title>
+    <style>
+        body {
+            font-family: 'Mayan', sans-serif;
+            margin: 0;
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #333;
+            text-align: center;
+        }
+        .quiz-container, .summary {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            background-image: url('images/back.jpg.webp');
+            background-size: cover;
+            background-position: center;
+        }
+        .question {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #000;
+        }
+        .choices {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            margin-left: 20%;
+        }
+        .choices li {
+            margin: 8px 0;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #FF0000;
+            color: white;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #CC0000;
+        }
+        .summary {
+            display: none;
+        }
+        .summary ul {
+            list-style: none;
+            padding: 0;
+        }
+        .summary li {
+            text-align: left;
+            margin-left: 20%;
+            margin-bottom: 10px;
+        }
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+        .incorrect {
+            color: red;
+            font-weight: bold;
+        }
+        .score {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .quiz-container, .summary {
+                max-width: 90%;
+                margin: 20px auto;
+                padding: 15px;
+                border-radius: 10px;
+            }
+            button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+        @media (max-width: 480px) {
+            .quiz-container, .summary {
+                padding: 10px;
+                margin: 10px;
+                border-radius: 10px;
+            }
+            .question {
+                font-size: 16px;
+            }
+            button {
+                font-size: 12px;
+                padding: 6px 12px;
+                border-radius: 10px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .quiz-container, .summary {
+                max-width: 800px;
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container" id="quiz-container">
+    <h2>QCM ENTRAINEMENT - Marketing Mix et Analyse des Résultats</h2>
+    <div id="question-container">
+        <!-- Les questions seront affichées ici dynamiquement -->
+    </div>
+    <button id="next-button" onclick="nextQuestion()">Suivant</button>
+</div>
+
+<div class="summary" id="summary">
+    <h3>Récapitulatif</h3>
+    <ul id="summary-list">
+        <!-- Le récapitulatif des réponses sera affiché ici -->
+    </ul>
+    <div class="score" id="score"></div>
+    <button onclick="restartQuiz()">Recommencer</button>
+</div>
+
+<script>
+    const quizData = [
+        { question: "Quels sont les 4 P du marketing mix ?", choices: ["Produit, Prix, Promotion, Place (distribution)", "Politique, Performance, Position, Produit", "Production, Publicité, Personnalisation, Placement", "Planification, Produit, Promotion, Prix"], correct: 0 },
+        { question: "Exemple : Charles propose un nouveau produit sur le marché. Quelles sont les étapes du cycle de vie de ce produit ?", choices: ["Introduction, croissance, maturité, déclin", "Développement, production, vente, renouvellement", "Introduction, expansion, saturation, liquidation", "Pré-lancement, lancement, obsolescence, recyclage"], correct: 0 },
+        { question: "Quelles sont les principales stratégies de tarification utilisées en marketing ?", choices: ["Écrémage, pénétration, alignement sur la concurrence, prix dynamique", "Prix fixe, prix variable, prix discount, prix négocié", "Prix direct, indirect, flexible, exclusif", "Remise, réduction, coupon, cashback"], correct: 0 },
+        { question: "Quel KPI mesure le coût d'acquisition client (CAC) ?", choices: ["La somme des coûts pour acquérir un nouveau client", "Le montant total des ventes générées par un client", "Le taux de conversion des visiteurs en acheteurs", "Le pourcentage de ventes réalisées sous promotion"], correct: 0 },
+        { question: "Exemple : Si Joséphine veut savoir combien lui coûte la publicité pour chaque nouveau client acquis, quel KPI doit-elle suivre ?", choices: ["CLV (Customer Lifetime Value)", "CAC (Coût d'Acquisition Client)", "ROAS (Return on Ad Spend)", "DN (Distribution Numérique)"], correct: 1 },
+        { question: "Quelles sont les stratégies de distribution ?", choices: ["Sélective, intensive, exclusive", "Numérique, physique, omnicanal", "Partagée, globale, locale", "Directe, indirecte, numérique"], correct: 0 },
+        { question: "Qu'est-ce qu'une analyse des écarts de performance ?", choices: ["Une comparaison entre les ventes actuelles et les coûts", "Une comparaison entre les objectifs marketing et les résultats obtenus", "Une étude des tendances du marché", "Une analyse des concurrents directs"], correct: 1 },
+        { question: "Exemple : Charles constate que ses résultats de vente sont inférieurs à ses prévisions. Quelle méthode peut-il utiliser pour ajuster sa stratégie marketing ?", choices: ["Revoir son mix marketing et ajuster les prix ou la communication", "Augmenter ses coûts fixes", "Réduire ses KPIs", "Changer de secteur d'activité"], correct: 0 },
+        { question: "Qu'est-ce que la 'valeur à vie du client' (CLV) ?", choices: ["La somme totale des achats qu'un client effectuera au cours de sa relation avec une entreprise", "Le coût total pour attirer un client", "Le montant maximum qu'un client est prêt à payer", "La durée de vie d'un produit dans un marché"], correct: 0 },
+        { question: "Quelle stratégie corrective peut être mise en place après une analyse des écarts de performance ?", choices: ["Repositionnement de la marque ou re-ciblage des segments", "Augmentation des coûts de production", "Suppression de toutes les campagnes publicitaires", "Réduction du nombre de produits disponibles"], correct: 0 }
+    ];
+
+    let currentQuestionIndex = 0;
+    let selectedAnswers = [];
+
+    function loadQuestion() {
+        const container = document.getElementById('question-container');
+        container.innerHTML = '';
+
+        const questionData = quizData[currentQuestionIndex];
+        const questionElem = document.createElement('div');
+        questionElem.className = 'question';
+        questionElem.textContent = questionData.question;
+
+        const choicesElem = document.createElement('ul');
+        choicesElem.className = 'choices';
+
+        questionData.choices.forEach((choice, index) => {
+            const choiceElem = document.createElement('li');
+            const choiceInput = document.createElement('input');
+            choiceInput.type = 'radio';
+            choiceInput.name = 'choice';
+            choiceInput.value = index;
+            choiceInput.id = `choice${index}`;
+            
+            const choiceLabel = document.createElement('label');
+            choiceLabel.htmlFor = `choice${index}`;
+            choiceLabel.textContent = choice;
+
+            choiceElem.appendChild(choiceInput);
+            choiceElem.appendChild(choiceLabel);
+            choicesElem.appendChild(choiceElem);
+        });
+
+        container.appendChild(questionElem);
+        container.appendChild(choicesElem);
+    }
+
+    function nextQuestion() {
+        const selectedChoice = document.querySelector('input[name="choice"]:checked');
+        if (!selectedChoice) {
+            alert("Veuillez sélectionner une réponse !");
+            return;
+        }
+
+        selectedAnswers.push(parseInt(selectedChoice.value));
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showSummary();
+        }
+    }
+
+    function showSummary() {
+        document.getElementById('quiz-container').style.display = 'none';
+        const summary = document.getElementById('summary');
+        summary.style.display = 'block';
+
+        const summaryList = document.getElementById('summary-list');
+        summaryList.innerHTML = '';
+
+        let correctAnswers = 0;
+
+        quizData.forEach((q, index) => {
+            const summaryItem = document.createElement('li');
+            summaryItem.innerHTML = `
+                <strong>${q.question}</strong><br>
+                <div style="text-align: left; margin-left: 20%;">
+                    Votre réponse: ${q.choices[selectedAnswers[index]]} - 
+                    ${selectedAnswers[index] === q.correct ? '<span class="correct">Correct</span>' : '<span class="incorrect">Incorrect</span>'}<br>
+                    Bonne réponse: ${q.choices[q.correct]}
+                </div>
+            `;
+            summaryList.appendChild(summaryItem);
+            if (selectedAnswers[index] === q.correct) {
+                correctAnswers++;
+            }
+        });
+
+        document.getElementById('score').textContent = `Score: ${correctAnswers} / ${quizData.length}`;
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        selectedAnswers = [];
+        document.getElementById('summary').style.display = 'none';
+        document.getElementById('quiz-container').style.display = 'block';
+        loadQuestion();
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+
+</html>
